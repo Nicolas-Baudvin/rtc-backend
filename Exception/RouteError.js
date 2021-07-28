@@ -1,7 +1,8 @@
 const errorMessages = {
-    missingParams: (missingParams) => `Le champs ${missingParams} est manquant mais obligatoire !`,
-    wrongCredentials: () => `Les identifiants sont incorrects.`,
-    serverFail: () => 'Une erreur est survenue sur le serveur'
+    missingParams: (missingParams) =>
+        `Le champs ${missingParams} est manquant mais obligatoire !`,
+    wrongCredentials: `Les identifiants sont incorrects.`,
+    serverFail: 'Une erreur est survenue sur le serveur',
 };
 
 class RouteError {
@@ -10,36 +11,38 @@ class RouteError {
     status;
     errorMessage;
 
-    constructor(errorType = "", missingParams = "") {
+    constructor(errorType = '', missingParams = '') {
         this.missingParams = missingParams;
         this.errorType = errorType;
         this.status = 500;
-        this.errorMessage = "";
+        this.errorMessage = '';
         this.create();
     }
 
     getError() {
         return {
             status: this.status,
-            errorMessage: this.errorMessage
-        }
+            errorMessage: this.errorMessage,
+        };
     }
 
     create() {
-        switch(this.errorType) {
-            case "required": {
+        switch (this.errorType) {
+            case 'required': {
                 this.status = 422;
-                this.errorMessage = errorMessages.missingParams(this.missingParams);
+                this.errorMessage = errorMessages.missingParams(
+                    this.missingParams
+                );
                 break;
             }
-            case "credentials": {
+            case 'credentials': {
                 this.status = 403;
-                this.errorMessage = errorMessages.wrongCredentials();
+                this.errorMessage = errorMessages.wrongCredentials;
                 break;
             }
             default: {
                 this.status = 500;
-                this.errorMessage = errorMessages.serverFail();
+                this.errorMessage = errorMessages.serverFail;
                 break;
             }
         }

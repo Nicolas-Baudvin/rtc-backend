@@ -63,7 +63,6 @@ describe('signup route', () => {
                 email: 'test@test.test',
             },
         });
-        console.log('error : ', response.body['error']);
         expect(response.statusCode).toEqual(409);
     });
 
@@ -80,18 +79,4 @@ describe('signup route', () => {
         });
         expect(response.statusCode).toEqual(409);
     });
-
-    // it('should delete the user and return a 200 status code', async () => {
-    //     const response = await app.inject({
-    //         method: 'DELETE',
-    //         url: '/api/user/',
-    //         payload: {
-    //             username: 'TestTest',
-    //             password: '12345678',
-    //             confPass: '12345678',
-    //             email: 'test@test.test',
-    //         },
-    //     });
-    //     expect(response.statusCode).toEqual(200);
-    // });
 });
