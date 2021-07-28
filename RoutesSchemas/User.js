@@ -13,8 +13,19 @@ exports.createUserSchema = {
         201: {
             type: 'object',
             properties: {
-                message: { type: 'string' }
-            }
-        }
-    }
-}
+                message: { type: 'string' },
+            },
+        },
+    },
+};
+
+exports.deleteUserSchema = {
+    body: {
+        type: 'object',
+        properties: {
+            _id: { type: 'string' },
+            email: { type: 'string' },
+        },
+        required: ['_id', 'email'],
+    },
+};
