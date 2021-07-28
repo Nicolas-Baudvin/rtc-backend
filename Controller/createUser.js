@@ -24,7 +24,6 @@ async function createUser(req, reply) {
     const { email, password, confPass, username } = req.body;
 
     const validationErrors = new CreateUserBodyValidation(req.body).errors;
-    console.log(isError(validationErrors), validationErrors);
     if (isError(validationErrors)) {
         return reply.code(422).send({ error: validationErrors });
     }
