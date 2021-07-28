@@ -4,6 +4,7 @@ class Validation {
 
     constructor(body) {
         this.email = body.email;
+        this.checkBody();
     }
 
     get errors() {

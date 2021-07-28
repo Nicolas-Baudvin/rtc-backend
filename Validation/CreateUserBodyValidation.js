@@ -25,7 +25,7 @@ class CreateUserBodyValidation extends Validation {
                 ...super.errors,
                 password: 'Les mots de passe doivent être identiques',
             };
-        } else if (this.password.length < 8) {
+        } else if (this.password?.length < 8) {
             super.errors = {
                 ...super.errors,
                 password: 'Le mot de passe doit faire 8 caractères minimum',
@@ -34,12 +34,10 @@ class CreateUserBodyValidation extends Validation {
     }
 
     checkUsernameField() {
-        if (this.username.length < 8) {
+        if (this.username?.length < 8) {
             super.errors = {
                 ...super.errors,
-                username: `Le pseudo doit faire au moins 8 caractères, il en fait actuellement ${
-                    this.username.length || 0
-                }`,
+                username: `Le pseudo doit faire au moins 8 caractères`,
             };
         }
     }
