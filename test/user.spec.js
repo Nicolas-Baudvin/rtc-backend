@@ -2,14 +2,22 @@ const build = require('../app');
 const db = require('../Util/Db');
 const mongoose = require('mongoose');
 
-describe('signup route', () => {
+describe('user routes', () => {
     const app = build();
+    let userData;
+
     beforeEach(async () => {
         await db();
     });
+
     afterEach(async () => {
         await mongoose.connection.close();
     });
+
+    /*
+     * CREATE route
+     * */
+
     it('should return an error 422', async () => {
         const response = await app.inject({
             method: 'POST',
@@ -78,5 +86,75 @@ describe('signup route', () => {
             },
         });
         expect(response.statusCode).toEqual(409);
+    });
+
+    /*
+     * LOGIN Route
+     * */
+
+    it('should connect the user and return token', async () => {
+        const email = 'test@test.test';
+        const password = '12345678';
+        const response = await app.inject({
+            method: 'POST',
+            url: '/api/user/auth/',
+            payload: {
+                email: email,
+                password: password,
+            },
+        });
+        const body = JSON.parse(response.body);
+        userData = body;
+        expect(response.statusCode).toEqual(200);
+        expect(body.email).toEqual(email);
+        expect(body.token).toBeTruthy();
+        expect(body._id).toBeTruthy();
+    });
+
+    it('should return a 403 bad credentials', async () => {
+        const email = 'test@testttt.test';
+        const password = '12345678';
+        const response = await app.inject({
+            method: 'POST',
+            url: '/api/user/auth/',
+            payload: {
+                email: email,
+                password: password,
+            },
+        });
+
+        expect(response.statusCode).toEqual(403);
+    });
+
+    /*
+     * DELETE Route
+     * */
+
+    it('should return a 403 error status code', async () => {
+        const response = await app.inject({
+            method: 'DELETE',
+            url: '/api/user/',
+            payload: {
+                email: userData.email,
+                _id: userData._id,
+            },
+        });
+
+        expect(response.statusCode).toEqual(403);
+    });
+
+    it('should delete the user and return a 200 status code', async () => {
+        const response = await app.inject({
+            method: 'DELETE',
+            url: '/api/user/',
+            payload: {
+                email: userData.email,
+                _id: userData._id,
+            },
+            headers: {
+                authorization: `Bearer ${userData.token}`,
+            },
+        });
+        expect(response.statusCode).toEqual(200);
     });
 });
