@@ -1,6 +1,11 @@
-const { createUserSchema, deleteUserSchema } = require('../RoutesSchemas/User');
+const {
+    createUserSchema,
+    deleteUserSchema,
+    authUser,
+} = require('../RoutesSchemas/User');
 const createUser = require('../Controller/createUser');
 const deleteUser = require('../Controller/deleteUser');
+const loginUser = require('../Controller/loginUser');
 
 const userRoutes = async (fastify, opts, next) => {
     fastify.post(
@@ -8,6 +13,7 @@ const userRoutes = async (fastify, opts, next) => {
         { schema: createUserSchema, attachValidation: true },
         createUser
     );
+
     fastify.delete(
         '/api/user/',
         {
@@ -17,6 +23,13 @@ const userRoutes = async (fastify, opts, next) => {
         },
         deleteUser
     );
+
+    fastify.post(
+        '/api/user/auth/',
+        { schema: authUser, attachValidation: true },
+        loginUser
+    );
+
     next();
 };
 
