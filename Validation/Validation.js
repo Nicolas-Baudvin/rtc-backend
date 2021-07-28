@@ -1,3 +1,5 @@
+const messages = ["L'email est invalide"];
+
 class Validation {
     email;
     errors = {};
@@ -25,7 +27,7 @@ class Validation {
         if (!re.test(String(this.email).toLowerCase())) {
             this.errors = {
                 ...this.errors,
-                email: "L'email est invalide",
+                email: messages[0],
             };
         }
     }

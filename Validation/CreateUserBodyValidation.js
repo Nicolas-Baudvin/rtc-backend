@@ -1,5 +1,11 @@
 const Validation = require('./Validation');
 
+const messages = [
+    'Les mots de passe doivent être identiques',
+    'Le mot de passe doit faire 8 caractères minimum',
+    'Le pseudo doit faire au moins 8 caractères',
+];
+
 class CreateUserBodyValidation extends Validation {
     password;
     confPass;
@@ -23,12 +29,12 @@ class CreateUserBodyValidation extends Validation {
         if (this.password !== this.confPass) {
             super.errors = {
                 ...super.errors,
-                password: 'Les mots de passe doivent être identiques',
+                password: messages[0],
             };
         } else if (this.password?.length < 8) {
             super.errors = {
                 ...super.errors,
-                password: 'Le mot de passe doit faire 8 caractères minimum',
+                password: messages[1],
             };
         }
     }
@@ -37,7 +43,7 @@ class CreateUserBodyValidation extends Validation {
         if (this.username?.length < 8) {
             super.errors = {
                 ...super.errors,
-                username: `Le pseudo doit faire au moins 8 caractères`,
+                username: messages[2],
             };
         }
     }
