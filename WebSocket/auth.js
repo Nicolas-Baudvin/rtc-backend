@@ -18,11 +18,22 @@ function isTokenValid({ token, email, _id }) {
 
 async function socketAuthentication(socket, data) {
     const { email, _id } = data;
-    const user = await User.findOne({ email, _id });
+    try {
+        const user = await User.findOne({ email, _id });
+        if (!user || !isTokenValid(data)) {
+            return socket.emit('failed authentication', {
+                error: 'Vous ne pouvez accéder à cette fonctionnalité, reconnectez vous.',
+            });
+        }
 
-    if (!user || !isTokenValid(data)) {
+        user.socketID = socket.id;
+        await user.save();
+
+        return socket.emit('success authentication', { success: true, user });
+    } catch (e) {
+        console.log(e);
         return socket.emit('failed authentication', {
-            error: 'Vous ne pouvez accéder à cette fonctionnalité, reconnectez vous.',
+            error: 'Erreur sur le server.',
         });
     }
 }
