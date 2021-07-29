@@ -26,23 +26,26 @@ class RouteError {
         };
     }
 
+    newError(status, errorMessage) {
+        this.status = status;
+        this.errorMessage = errorMessage;
+    }
+
     create() {
         switch (this.errorType) {
             case 'required': {
-                this.status = 422;
-                this.errorMessage = errorMessages.missingParams(
-                    this.missingParams
+                this.newError(
+                    422,
+                    errorMessages.missingParams(this.missingParams)
                 );
                 break;
             }
             case 'credentials': {
-                this.status = 403;
-                this.errorMessage = errorMessages.wrongCredentials;
+                this.newError(403, errorMessages.wrongCredentials);
                 break;
             }
             default: {
-                this.status = 500;
-                this.errorMessage = errorMessages.serverFail;
+                this.newError(500, errorMessages.serverFail);
                 break;
             }
         }
