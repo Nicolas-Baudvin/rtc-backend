@@ -9,7 +9,6 @@ async function createRoom(socket, data) {
     }
 
     const { roomName, email, username, _id } = data;
-    console.log('roomName : ', roomName);
     if (!roomName) {
         return socket.emit('create error', {
             error: 'Le nom est obligatoire !',
