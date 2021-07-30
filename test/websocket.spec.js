@@ -5,10 +5,10 @@ const db = require('../Util/Db');
 const mongoose = require('mongoose');
 const socketAuthentication = require('../WebSocket/auth');
 const createRoom = require('../WebSocket/createRoom');
-const User = require('../Model/User');
+const deleteRoom = require('../WebSocket/deleteRoom');
 require('dotenv').config();
 
-const roomName = 'RoomTest';
+const fakeRoomName = 'RoomTest';
 const falseToken = 'ey74w5f4gfd5xcfgxhgxccx54xd';
 
 const fakeUserData = {
@@ -22,15 +22,8 @@ const userData = {
     token: process.env.TEST_TOKEN,
 };
 
-async function getUser() {
-    return User.findOne({
-        email: process.env.TEST_EMAIL,
-        _id: process.env.TEST_ID,
-    });
-}
-
 describe('Websocket', () => {
-    let io, clientSocket, serverSocket;
+    let io, clientSocket, serverSocket, roomId, roomName;
     beforeEach((done) => {
         const httpServer = createServer();
         io = new Server(httpServer);
@@ -89,15 +82,33 @@ describe('Websocket', () => {
             expect(data.email).toEqual(userData.email);
             expect(data._id).toEqual(userData._id);
             expect(data.token).toEqual(falseToken);
-            expect(data.roomName).toEqual(roomName);
+            expect(data.roomName).toEqual(fakeRoomName);
         });
         clientSocket.emit('create room', {
             ...userData,
             token: falseToken,
-            roomName,
+            roomName: fakeRoomName,
         });
         clientSocket.on('failed authentication', (data) => {
             expect(data.error).toBeTruthy();
+            done();
+        });
+    });
+
+    it('should return en error of no name for room', (done) => {
+        serverSocket.on('create room', (data) => {
+            createRoom(serverSocket, data);
+            expect(data.email).toEqual(userData.email);
+            expect(data._id).toEqual(userData._id);
+            expect(data.token).toEqual(userData.token);
+            expect(data.roomName).toEqual(undefined);
+        });
+        clientSocket.emit('create room', {
+            ...userData,
+            roomName: undefined,
+        });
+        clientSocket.on('create error', (data) => {
+            expect(data.error).toEqual('Le nom est obligatoire !');
             done();
         });
     });
@@ -108,15 +119,82 @@ describe('Websocket', () => {
             expect(data.email).toEqual(userData.email);
             expect(data._id).toEqual(userData._id);
             expect(data.token).toEqual(userData.token);
-            expect(data.roomName).toEqual(roomName);
+            expect(data.roomName).toEqual(fakeRoomName);
         });
         clientSocket.emit('create room', {
             ...userData,
-            roomName,
+            roomName: fakeRoomName,
         });
         clientSocket.on('room created', (data) => {
             expect(data.success).toEqual(true);
+            expect(data.room.name).toEqual(fakeRoomName);
+            roomId = data.room._id;
+            roomName = data.room.name;
+            done();
+        });
+    });
+
+    /**
+     * Delete room
+     */
+
+    it('should return an error of authentication when trying to delete room', (done) => {
+        serverSocket.on('delete room', (data) => {
+            deleteRoom(serverSocket, data);
+            expect(data.email).toEqual(userData.email);
+            expect(data._id).toEqual(userData._id);
+            expect(data.token).toEqual(falseToken);
+            expect(data.room._id).toEqual(roomId);
             expect(data.room.name).toEqual(roomName);
+        });
+        clientSocket.emit('delete room', {
+            ...userData,
+            token: falseToken,
+            room: { _id: roomId, name: roomName },
+        });
+        clientSocket.on('failed authentication', (data) => {
+            expect(data.error).toBeTruthy();
+            done();
+        });
+    });
+
+    it('should return a delete error : no name or id', (done) => {
+        serverSocket.on('delete room', (data) => {
+            deleteRoom(serverSocket, data);
+            expect(data.email).toEqual(userData.email);
+            expect(data._id).toEqual(userData._id);
+            expect(data.token).toEqual(userData.token);
+            expect(data.room._id).toEqual(undefined);
+            expect(data.room.name).toEqual(roomName);
+        });
+        clientSocket.emit('delete room', {
+            ...userData,
+            room: { _id: undefined, name: roomName },
+        });
+        clientSocket.on('delete error', (data) => {
+            expect(data.error).toEqual('Impossible de trouver ce chat !');
+            done();
+        });
+    });
+
+    it('should delete the room', (done) => {
+        serverSocket.on('delete room', (data) => {
+            deleteRoom(serverSocket, data);
+            expect(data.email).toEqual(userData.email);
+            expect(data._id).toEqual(userData._id);
+            expect(data.token).toEqual(userData.token);
+            expect(data.room._id).toEqual(roomId);
+            expect(data.room.name).toEqual(roomName);
+        });
+        clientSocket.emit('delete room', {
+            ...userData,
+            room: { _id: roomId, name: roomName },
+        });
+        clientSocket.on('room deleted', (data) => {
+            expect(data.success).toEqual(true);
+            expect(data.message).toEqual(
+                'Le chat et tous les messages ont bien été supprimé'
+            );
             done();
         });
     });
