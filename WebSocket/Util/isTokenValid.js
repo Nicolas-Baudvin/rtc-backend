@@ -4,7 +4,7 @@ function isTokenValid({ token, email, _id }) {
     let isTokenValid;
     try {
         const decoded = jwt.verify(token, process.env.TOKEN_KEY);
-        if (decoded.email !== email && decoded._id !== _id) {
+        if (decoded.email !== email || decoded._id !== _id) {
             isTokenValid = false;
         }
         isTokenValid = true;
