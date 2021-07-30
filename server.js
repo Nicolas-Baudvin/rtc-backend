@@ -6,7 +6,9 @@ const server = require('./app')({
     },
 });
 
-db().then(() => {});
+db().then(() => {
+    console.log('connected to databse');
+});
 
 server.listen(5000, (err, address) => {
     if (err) {
