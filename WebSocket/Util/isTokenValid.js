@@ -6,6 +6,7 @@ function isTokenValid({ token, email, _id }) {
         const decoded = jwt.verify(token, process.env.TOKEN_KEY);
         if (decoded.email !== email || decoded._id !== _id) {
             isTokenValid = false;
+            return isTokenValid;
         }
         isTokenValid = true;
         return isTokenValid;
