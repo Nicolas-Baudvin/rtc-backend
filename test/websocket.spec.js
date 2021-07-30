@@ -97,7 +97,6 @@ describe('Websocket', () => {
             roomName,
         });
         clientSocket.on('failed authentication', (data) => {
-            console.log(data);
             expect(data.error).toBeTruthy();
             done();
         });
@@ -116,7 +115,6 @@ describe('Websocket', () => {
             roomName,
         });
         clientSocket.on('room created', (data) => {
-            console.log(data);
             expect(data.success).toEqual(true);
             expect(data.room.name).toEqual(roomName);
             done();
