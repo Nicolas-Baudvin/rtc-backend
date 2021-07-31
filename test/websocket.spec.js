@@ -7,6 +7,7 @@ const socketAuthentication = require('../WebSocket/auth');
 const createRoom = require('../WebSocket/createRoom');
 const deleteRoom = require('../WebSocket/deleteRoom');
 const joinRoom = require('../WebSocket/joinRoom');
+const sendMessage = require('../WebSocket/sendMessage');
 require('dotenv').config();
 
 const fakeRoomName = 'RoomTest';
@@ -21,6 +22,8 @@ const userData = {
     email: process.env.TEST_EMAIL,
     _id: process.env.TEST_ID,
     token: process.env.TEST_TOKEN,
+    picture: '',
+    username: 'TestTest',
 };
 
 describe('Websocket', () => {
@@ -216,6 +219,107 @@ describe('Websocket', () => {
             expect(data.room.name).toEqual(roomName);
             expect(data.room._id).toEqual(roomId);
             expect(data.room.members.length).toEqual(2);
+            done();
+        });
+    });
+
+    /**
+     * Send message in the room
+     */
+
+    it('return an error of authentication when trying to send a message in a room', (done) => {
+        const message = 'Hello World';
+        serverSocket.on('message', (data) => {
+            sendMessage(serverSocket, data, io);
+            expect(data.email).toEqual(userData.email);
+            expect(data._id).toEqual(userData._id);
+            expect(data.token).toEqual(falseToken);
+            expect(data.message).toEqual(message);
+        });
+
+        clientSocket.emit('message', {
+            ...userData,
+            token: falseToken,
+            message,
+            room: { name: roomName, _id: roomId },
+        });
+
+        clientSocket.on('failed authentication', (data) => {
+            expect(data.error).toBeTruthy();
+            done();
+        });
+    });
+
+    it('return an error : message is empty', (done) => {
+        const message = '';
+        serverSocket.on('message', (data) => {
+            sendMessage(serverSocket, data, io);
+            expect(data.email).toEqual(userData.email);
+            expect(data._id).toEqual(userData._id);
+            expect(data.token).toEqual(userData.token);
+            expect(data.message).toEqual(message);
+        });
+
+        clientSocket.emit('message', {
+            ...userData,
+            message,
+            room: { name: roomName, _id: roomId },
+        });
+
+        clientSocket.on('message error', (data) => {
+            expect(data.error).toEqual(
+                'Le message doit contenir au moins 1 caractère'
+            );
+            done();
+        });
+    });
+
+    it('return an error : room does not exist', (done) => {
+        const message = 'Hello World';
+        const falseRoomName = 'falseRoomName';
+        serverSocket.on('message', (data) => {
+            sendMessage(serverSocket, data, io);
+            expect(data.email).toEqual(userData.email);
+            expect(data._id).toEqual(userData._id);
+            expect(data.token).toEqual(userData.token);
+            expect(data.message).toEqual(message);
+            expect(data.room.name).toEqual(falseRoomName);
+        });
+
+        clientSocket.emit('message', {
+            ...userData,
+            message,
+            room: { name: falseRoomName, _id: roomId },
+        });
+
+        clientSocket.on('message error', (data) => {
+            expect(data.error).toEqual(`Le chat ${falseRoomName} n'existe pas`);
+            done();
+        });
+    });
+
+    it("should send a message to user's chat", (done) => {
+        const message = 'Hello World';
+        serverSocket.on('message', (data) => {
+            serverSocket.join(roomName); // have to rejoin bc socket close at each test.
+            sendMessage(serverSocket, data, io);
+            expect(data.email).toEqual(userData.email);
+            expect(data._id).toEqual(userData._id);
+            expect(data.token).toEqual(userData.token);
+            expect(data.message).toEqual(message);
+            expect(data.room.name).toEqual(roomName);
+        });
+
+        clientSocket.emit('message', {
+            ...userData,
+            message,
+            room: { name: roomName, _id: roomId },
+        });
+
+        clientSocket.on('message sent', (data) => {
+            expect(data.success).toEqual(true);
+            expect(data.message.desc).toEqual(message);
+            expect(data.room.messages.length).toEqual(1);
             done();
         });
     });
