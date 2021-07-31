@@ -18,11 +18,13 @@ async function createRoom(socket, data) {
         const room = new Room({
             name: roomName,
             owner: { email, _id, username },
-            members: [],
+            members: [{ email, _id, username, socketID: socket.id }],
             messages: [],
         });
 
         await room.save();
+
+        socket.join(roomName);
 
         return socket.emit('room created', { success: true, room });
     } catch (e) {
