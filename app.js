@@ -21,7 +21,9 @@ function build(opts = {}) {
             credentials: true,
         },
     }).then(() => {
-        app.io.on('connection', (socket) => socketEventController(socket));
+        app.io.on('connection', (socket) => {
+            socketEventController(socket, app.io);
+        });
     });
 
     app.register(jwtPlugin).after((err) => {
