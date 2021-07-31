@@ -23,6 +23,7 @@ async function deleteRoom(socket, data, io) {
 
         io.to(name).emit('leave');
 
+        socket.leave(data.room.name);
         return socket.emit('room deleted', {
             success: true,
             message: 'Le chat et tous les messages ont bien été supprimé',
