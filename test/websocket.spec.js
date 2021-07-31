@@ -8,6 +8,7 @@ const createRoom = require('../WebSocket/createRoom');
 const deleteRoom = require('../WebSocket/deleteRoom');
 const joinRoom = require('../WebSocket/joinRoom');
 const sendMessage = require('../WebSocket/sendMessage');
+const leaveRoom = require('../WebSocket/leaveRoom');
 require('dotenv').config();
 
 const fakeRoomName = 'RoomTest';
@@ -64,7 +65,7 @@ describe('Websocket', () => {
         });
     });
 
-    it('should return an error when trying auth', (done) => {
+    it('should return an error when trying to auth', (done) => {
         serverSocket.on('login', (data) => {
             socketAuthentication(serverSocket, data);
             expect(data.email).toEqual(fakeUserData.email);
@@ -320,6 +321,73 @@ describe('Websocket', () => {
             expect(data.success).toEqual(true);
             expect(data.message.desc).toEqual(message);
             expect(data.room.messages.length).toEqual(1);
+            done();
+        });
+    });
+
+    /**
+     * Leave the room
+     */
+
+    it('should return an error of authentication when trying to leave the room', (done) => {
+        serverSocket.on('leave room', (data) => {
+            leaveRoom(serverSocket, data, io);
+            expect(data.email).toEqual(userData.email);
+            expect(data._id).toEqual(userData._id);
+            expect(data.token).toEqual(falseToken);
+            expect(data.room.name).toEqual(roomName);
+            expect(data.room._id).toEqual(roomId);
+        });
+        clientSocket.emit('leave room', {
+            ...userData,
+            token: falseToken,
+            room: { name: roomName, _id: roomId },
+        });
+        clientSocket.on('failed authentication', (data) => {
+            expect(data.error).toBeTruthy();
+            done();
+        });
+    });
+
+    it('should return an error : no room name', (done) => {
+        const falseRoomName = '';
+        serverSocket.on('leave room', (data) => {
+            leaveRoom(serverSocket, data, io);
+            expect(data.email).toEqual(userData.email);
+            expect(data._id).toEqual(userData._id);
+            expect(data.token).toEqual(userData.token);
+            expect(data.room.name).toEqual(falseRoomName);
+            expect(data.room._id).toEqual(roomId);
+        });
+        clientSocket.emit('leave room', {
+            ...userData,
+            room: { name: falseRoomName, _id: roomId },
+        });
+        clientSocket.on('leave error', (data) => {
+            expect(data.error).toBeTruthy();
+            done();
+        });
+    });
+
+    it('should leave the room', (done) => {
+        serverSocket.on('leave room', (data) => {
+            serverSocket.join(roomName); // have to rejoin bc socket close at each test.
+            leaveRoom(serverSocket, data, io);
+            expect(data.email).toEqual(userData.email);
+            expect(data._id).toEqual(userData._id);
+            expect(data.token).toEqual(userData.token);
+            expect(data.room.name).toEqual(roomName);
+            expect(data.room._id).toEqual(roomId);
+        });
+        clientSocket.emit('leave room', {
+            ...userData,
+            room: { name: roomName, _id: roomId },
+        });
+        clientSocket.on('room left', (data) => {
+            expect(data.success).toEqual(true);
+            expect(data.message).toEqual(
+                `Vous avez quitté le salon ${roomName}`
+            );
             done();
         });
     });
