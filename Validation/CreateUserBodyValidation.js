@@ -3,7 +3,7 @@ const Validation = require('./Validation');
 const messages = [
     'Les mots de passe doivent être identiques',
     'Le mot de passe doit faire 8 caractères minimum',
-    'Le pseudo doit faire au moins 8 caractères',
+    'Le pseudo doit faire au moins 3 caractères',
 ];
 
 class CreateUserBodyValidation extends Validation {
@@ -40,7 +40,7 @@ class CreateUserBodyValidation extends Validation {
     }
 
     checkUsernameField() {
-        if (this.username?.length < 8) {
+        if (this.username?.length < 3) {
             super.errors = {
                 ...super.errors,
                 username: messages[2],
