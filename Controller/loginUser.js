@@ -8,13 +8,13 @@ async function loginUser(req, reply) {
     const user = await User.findOne({ email });
 
     if (!user) {
-        return reply.status(403).send({ error: 'Identifiants incorrects' });
+        return reply.status(401).send({ error: 'Identifiants incorrects' });
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
-        return reply.status(403).send({ error: 'Identifiants incorrects' });
+        return reply.status(401).send({ error: 'Identifiants incorrects' });
     }
 
     const token = jwt.sign({ email, _id: user._id }, process.env.TOKEN_KEY, {
