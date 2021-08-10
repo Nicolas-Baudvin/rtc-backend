@@ -7,6 +7,7 @@ const RoomSchema = new mongoose.Schema(
         owner: { type: Object, required: true },
         members: { type: Array, required: true },
         messages: { type: Array, required: true },
+        password: { type: String, required: true },
     },
     { timestamps: true }
 );
