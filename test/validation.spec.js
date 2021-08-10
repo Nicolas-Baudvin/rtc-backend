@@ -34,7 +34,7 @@ describe('Validations stuff', () => {
         );
     });
 
-    it('should return a message : username should have at least 8 chars', () => {
+    it('should return a message : username should have at least 3 chars', () => {
         const body = {
             email: 'test@test.test',
             password: '12345678',
@@ -43,7 +43,7 @@ describe('Validations stuff', () => {
         };
         const validation = new CreateUserBodyValidation(body).errors;
         expect(validation.username).toEqual(
-            'Le pseudo doit faire au moins 8 caractères'
+            'Le pseudo doit faire au moins 3 caractères'
         );
     });
 });

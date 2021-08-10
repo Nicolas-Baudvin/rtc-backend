@@ -87,15 +87,37 @@ describe('Websocket', () => {
             expect(data.email).toEqual(userData.email);
             expect(data._id).toEqual(userData._id);
             expect(data.token).toEqual(falseToken);
+            expect(data.password).toEqual('123456');
             expect(data.roomName).toEqual(fakeRoomName);
         });
         clientSocket.emit('create room', {
             ...userData,
             token: falseToken,
+            password: '123456',
             roomName: fakeRoomName,
         });
         clientSocket.on('failed authentication', (data) => {
             expect(data.error).toBeTruthy();
+            done();
+        });
+    });
+
+    it('should return an error of no password for room', (done) => {
+        serverSocket.on('create room', (data) => {
+            createRoom(serverSocket, data);
+            expect(data.email).toEqual(userData.email);
+            expect(data._id).toEqual(userData._id);
+            expect(data.token).toEqual(userData.token);
+            expect(data.password).toEqual('');
+            expect(data.roomName).toEqual(fakeRoomName);
+        });
+        clientSocket.emit('create room', {
+            ...userData,
+            password: '',
+            roomName: fakeRoomName,
+        });
+        clientSocket.on('create error', (data) => {
+            expect(data.error).toEqual('Le mot de passe est obligatoire !');
             done();
         });
     });
@@ -106,10 +128,12 @@ describe('Websocket', () => {
             expect(data.email).toEqual(userData.email);
             expect(data._id).toEqual(userData._id);
             expect(data.token).toEqual(userData.token);
+            expect(data.password).toEqual('123456');
             expect(data.roomName).toEqual(undefined);
         });
         clientSocket.emit('create room', {
             ...userData,
+            password: '123456',
             roomName: undefined,
         });
         clientSocket.on('create error', (data) => {
@@ -124,10 +148,12 @@ describe('Websocket', () => {
             expect(data.email).toEqual(userData.email);
             expect(data._id).toEqual(userData._id);
             expect(data.token).toEqual(userData.token);
+            expect(data.password).toEqual('123456');
             expect(data.roomName).toEqual(fakeRoomName);
         });
         clientSocket.emit('create room', {
             ...userData,
+            password: '123456',
             roomName: fakeRoomName,
         });
         clientSocket.on('room created', (data) => {

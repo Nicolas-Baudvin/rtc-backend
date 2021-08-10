@@ -111,7 +111,7 @@ describe('user routes', () => {
         expect(body._id).toBeTruthy();
     });
 
-    it('should return a 403 bad credentials', async () => {
+    it('should return a 401 bad credentials', async () => {
         const email = 'test@testttt.test';
         const password = '12345678';
         const response = await app.inject({
@@ -123,7 +123,7 @@ describe('user routes', () => {
             },
         });
 
-        expect(response.statusCode).toEqual(403);
+        expect(response.statusCode).toEqual(401);
     });
 
     /*
