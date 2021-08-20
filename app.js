@@ -3,6 +3,7 @@ const cors = require('fastify-cors');
 const socketIo = require('fastify-socket.io');
 const jwtPlugin = require('./Plugin/jwtPlugin');
 const userRoutes = require('./Router/UserRoutes');
+const roomRoutes = require('./Router/RoomRoutes');
 const socketEventController = require('./WebSocket');
 require('dotenv').config();
 
@@ -30,6 +31,7 @@ function build(opts = {}) {
         if (err) throw err;
     });
     app.register(userRoutes);
+    app.register(roomRoutes);
 
     return app;
 }
