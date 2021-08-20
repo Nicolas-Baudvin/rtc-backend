@@ -38,7 +38,7 @@ async function createRoom(socket, data) {
         return socket.emit('room created', { success: true, room });
     } catch (e) {
         console.log('error : ', e);
-        return socket.emit('socket fail', {
+        return socket.emit('create error', {
             error: 'Le serveur a rencontré un problème',
         });
     }
