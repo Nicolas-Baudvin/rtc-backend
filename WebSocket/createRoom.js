@@ -9,20 +9,20 @@ async function createRoom(socket, data) {
         });
     }
 
-    const { roomName, email, username, _id, password } = data;
+    const { roomName, email, username, _id, roomPass } = data;
     if (!roomName) {
         return socket.emit('create error', {
             error: 'Le nom est obligatoire !',
         });
     }
-    if (!password) {
+    if (!roomPass) {
         return socket.emit('create error', {
             error: 'Le mot de passe est obligatoire !',
         });
     }
 
     try {
-        const hash = await bcrypt.hash(password, 10);
+        const hash = await bcrypt.hash(roomPass, 10);
         const room = new Room({
             name: roomName,
             owner: { email, _id, username },

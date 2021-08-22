@@ -4,6 +4,8 @@ const RouteError = require('../../Exception/RouteError');
 async function getRooms(req, reply) {
     const { _id, email, username } = req.body;
 
+    const owner = { email, _id, username };
+
     if (req.validationError) {
         const { params, keyword } = req.validationError.validation[0];
         const { status, errorMessage } = new RouteError(
@@ -14,7 +16,9 @@ async function getRooms(req, reply) {
     }
 
     try {
-        const rooms = await Rooms.find({ owner: { _id, email, username } });
+        const rooms = await Rooms.find({ owner });
+
+        console.log(rooms, req.body);
 
         return reply.code(200).send({ rooms });
     } catch (e) {
