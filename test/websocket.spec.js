@@ -148,12 +148,12 @@ describe('Websocket', () => {
             expect(data.email).toEqual(userData.email);
             expect(data._id).toEqual(userData._id);
             expect(data.token).toEqual(userData.token);
-            expect(data.password).toEqual('123456');
+            expect(data.roomPass).toEqual('123456');
             expect(data.roomName).toEqual(fakeRoomName);
         });
         clientSocket.emit('create room', {
             ...userData,
-            password: '123456',
+            roomPass: '123456',
             roomName: fakeRoomName,
         });
         clientSocket.on('room created', (data) => {
