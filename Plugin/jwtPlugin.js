@@ -18,7 +18,12 @@ function jwtPlugin(fastify, opts, next) {
                 reply.code(403).send('Accès interdit.');
             }
         } catch (err) {
-            reply.send(err);
+            reply
+                .code(403)
+                .send({
+                    err,
+                    error: "Vous n'avez pas accès à cette fonctionnalité : reconnectez vous.",
+                });
         }
     });
     next();
