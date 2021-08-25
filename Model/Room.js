@@ -3,7 +3,7 @@ const Message = require('./Message');
 
 const RoomSchema = new mongoose.Schema(
     {
-        name: { type: String, required: true },
+        name: { type: String, required: true, unique: true },
         owner: { type: Object, required: true },
         members: { type: Array, required: true },
         messages: { type: Array, required: true },
