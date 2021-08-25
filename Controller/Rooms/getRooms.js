@@ -16,12 +16,20 @@ async function getRooms(req, reply) {
     }
 
     try {
-        const rooms = await Rooms.find({ owner });
+        const ownerRooms = await Rooms.find({ owner });
+        const memberRooms = await Rooms.find({
+            'members.email': email,
+        });
 
-        console.log(rooms, req.body);
+        const newRooms = memberRooms.filter(
+            (room, i) => room?.name !== ownerRooms[i]?.name
+        );
+
+        const rooms = [...ownerRooms, ...newRooms];
 
         return reply.code(200).send({ rooms });
     } catch (e) {
+        console.log(e);
         return reply
             .code(500)
             .send({ error: 'Une erreur est survenue sur le serveur.' });
