@@ -7,7 +7,7 @@ async function createMessage(data) {
     const message = await new Message({
         desc: data.message,
         author: data.username,
-        authorPicture: data.picture || false,
+        authorPicture: data.picture || '',
         roomId: data.room._id,
     });
 
@@ -45,9 +45,7 @@ async function sendMessage(socket, data, io) {
         room.messages.push(message);
 
         await room.save();
-        return io
-            .to(data.room.name)
-            .emit('message sent', { message, room, success: true });
+        io.to(room.name).emit('message sent', { room, success: true });
     } catch (e) {
         console.error('message error : ', e);
     }
