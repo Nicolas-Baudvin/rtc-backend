@@ -12,7 +12,7 @@ function socketEventController(socket, io) {
     socket.on('delete room', (data) => deleteRoom(socket, data, io));
     socket.on('join room', (data) => joinRoom(socket, data, io));
     socket.on('leave room', (data) => leaveRoom(socket, data, io));
-    socket.on('sendMessage', (data) => sendMessage(socket, data, io));
+    socket.on('send message', (data) => sendMessage(socket, data, io));
     socket.on('disconnect client', (data) => {
         console.log("Quelqu'un s'est déconnecté", data);
         socket.disconnect();
