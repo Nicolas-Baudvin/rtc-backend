@@ -1,6 +1,21 @@
 const isTokenValid = require('./Util/isTokenValid');
 const Room = require('../Model/Room');
 const errors = require('./Util/errors');
+const bcrypt = require('bcrypt');
+
+async function isPasswordValid(password, roomPass) {
+    return await bcrypt.compare(password, roomPass);
+}
+
+async function getRoom(name) {
+    return Room.findOne({
+        name,
+    });
+}
+
+function isUserAlreadyMember(email, members) {
+    return Boolean(members.find((member) => member.email === email));
+}
 
 async function joinRoom(socket, data, io) {
     if (!isTokenValid(data)) {
@@ -16,23 +31,31 @@ async function joinRoom(socket, data, io) {
     }
 
     try {
-        const room = await Room.findOne({
-            name: data.room.name,
-            _id: data.room._id,
-        });
+        const room = await getRoom(data.room.name);
         if (!room) {
             return socket.emit('join error', {
                 error: errors(data).notfound,
             });
         }
 
-        socket.join(data.room.name);
-        room.members.push({
-            email: data.email,
-            _id: data._id,
-            socketID: socket.id,
-            username: data.username,
-        });
+        if (!isUserAlreadyMember(data.email, room.members)) {
+            if (!(await isPasswordValid(data.room.password, room.password))) {
+                return socket.emit('join error', {
+                    error: 'Le mot de passe est invalide',
+                });
+            } else {
+                room.members.push({
+                    email: data.email,
+                    _id: data._id,
+                    socketID: socket.id,
+                    username: data.username,
+                    picture: data.picture,
+                });
+                socket.join(data.room.name);
+            }
+        } else {
+            socket.join(data.room.name);
+        }
 
         await room.save();
 
