@@ -40,7 +40,7 @@ class CreateUserBodyValidation extends Validation {
     }
 
     checkUsernameField() {
-        if (this.username?.length < 3) {
+        if (this.username?.length < 3 && this.username?.length > 20) {
             super.errors = {
                 ...super.errors,
                 username: messages[2],
