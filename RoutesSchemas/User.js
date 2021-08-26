@@ -40,3 +40,17 @@ exports.authUser = {
         required: ['_id', 'email'],
     },
 };
+
+exports.patchUser = {
+    body: {
+        type: 'object',
+        properties: {
+            email: { type: 'string' },
+            password: { type: 'string' },
+            newPass: { type: 'string' },
+            newPassConf: { type: 'string' },
+            picture: { type: 'string' },
+        },
+        required: ['username', 'email'],
+    },
+};
