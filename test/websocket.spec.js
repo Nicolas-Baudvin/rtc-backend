@@ -245,7 +245,7 @@ describe('Websocket', () => {
         clientSocket.on('room joined', (data) => {
             expect(data.room.name).toEqual(roomName);
             expect(data.room._id).toEqual(roomId);
-            expect(data.room.members.length).toEqual(2);
+            expect(data.room.members.length).toEqual(1);
             done();
         });
     });
@@ -256,7 +256,7 @@ describe('Websocket', () => {
 
     it('return an error of authentication when trying to send a message in a room', (done) => {
         const message = 'Hello World';
-        serverSocket.on('message', (data) => {
+        serverSocket.on('send message', (data) => {
             sendMessage(serverSocket, data, io);
             expect(data.email).toEqual(userData.email);
             expect(data._id).toEqual(userData._id);
@@ -264,7 +264,7 @@ describe('Websocket', () => {
             expect(data.message).toEqual(message);
         });
 
-        clientSocket.emit('message', {
+        clientSocket.emit('send message', {
             ...userData,
             token: falseToken,
             message,
@@ -279,7 +279,7 @@ describe('Websocket', () => {
 
     it('return an error : message is empty', (done) => {
         const message = '';
-        serverSocket.on('message', (data) => {
+        serverSocket.on('send message', (data) => {
             sendMessage(serverSocket, data, io);
             expect(data.email).toEqual(userData.email);
             expect(data._id).toEqual(userData._id);
@@ -287,7 +287,7 @@ describe('Websocket', () => {
             expect(data.message).toEqual(message);
         });
 
-        clientSocket.emit('message', {
+        clientSocket.emit('send message', {
             ...userData,
             message,
             room: { name: roomName, _id: roomId },
@@ -304,7 +304,7 @@ describe('Websocket', () => {
     it('return an error : room does not exist', (done) => {
         const message = 'Hello World';
         const falseRoomName = 'falseRoomName';
-        serverSocket.on('message', (data) => {
+        serverSocket.on('send message', (data) => {
             sendMessage(serverSocket, data, io);
             expect(data.email).toEqual(userData.email);
             expect(data._id).toEqual(userData._id);
@@ -313,7 +313,7 @@ describe('Websocket', () => {
             expect(data.room.name).toEqual(falseRoomName);
         });
 
-        clientSocket.emit('message', {
+        clientSocket.emit('send message', {
             ...userData,
             message,
             room: { name: falseRoomName, _id: roomId },
@@ -327,7 +327,7 @@ describe('Websocket', () => {
 
     it("should send a message to user's chat", (done) => {
         const message = 'Hello World';
-        serverSocket.on('message', (data) => {
+        serverSocket.on('send message', (data) => {
             serverSocket.join(roomName); // have to rejoin bc socket close at each test.
             sendMessage(serverSocket, data, io);
             expect(data.email).toEqual(userData.email);
@@ -337,7 +337,7 @@ describe('Websocket', () => {
             expect(data.room.name).toEqual(roomName);
         });
 
-        clientSocket.emit('message', {
+        clientSocket.emit('send message', {
             ...userData,
             message,
             room: { name: roomName, _id: roomId },
@@ -345,7 +345,6 @@ describe('Websocket', () => {
 
         clientSocket.on('message sent', (data) => {
             expect(data.success).toEqual(true);
-            expect(data.message.desc).toEqual(message);
             expect(data.room.messages.length).toEqual(1);
             done();
         });
