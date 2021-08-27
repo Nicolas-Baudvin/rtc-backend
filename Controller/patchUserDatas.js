@@ -1,4 +1,5 @@
 const User = require('../Model/User');
+const bcrypt = require('bcrypt');
 
 function isUsernameValid(username) {
     return username.length >= 3;
@@ -24,7 +25,7 @@ async function getUser(email, username) {
 
 // TODO: Picture validation
 async function patchUserDatas(req, reply) {
-    const { email, username, newPass, newPassConf } = req.body;
+    const { email, username, newPass, newPassConf, picture } = req.body;
 
     const user = await getUser(email, username);
 
@@ -38,10 +39,12 @@ async function patchUserDatas(req, reply) {
             error: "L'Email est invalide",
         });
     }
-    if (!newPass) {
-        user.email = email;
-        user.username = username;
-    } else {
+
+    user.email = email;
+    user.username = username;
+    user.picture = picture;
+
+    if (newPass) {
         if (!arePasswordsEqual(newPass, newPassConf)) {
             return reply.code(422).send({
                 error: 'Les mots de passe sont différents',
@@ -52,9 +55,9 @@ async function patchUserDatas(req, reply) {
                 error: 'Le mot de passe doit faire entre 8 et 30 caractères',
             });
         }
-        user.email = email;
-        user.username = username;
-        user.password = newPass;
+
+        const hash = await bcrypt.hash(newPass, 10);
+        user.password = hash;
     }
 
     await user.save();
