@@ -50,6 +50,7 @@ async function joinRoom(socket, data, io) {
                     socketID: socket.id,
                     username: data.username,
                     picture: data.picture,
+                    isOnline: true,
                 });
                 socket.join(data.room.name);
             }
