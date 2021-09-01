@@ -1,6 +1,7 @@
 const socketAuthentication = require('./auth');
 const createRoom = require('./createRoom');
 const deleteRoom = require('./deleteRoom');
+const disconnectFromRoom = require('./disconnectFromRoom');
 const joinRoom = require('./joinRoom');
 const leaveRoom = require('./leaveRoom');
 const sendMessage = require('./sendMessage');
@@ -13,6 +14,9 @@ function socketEventController(socket, io) {
     socket.on('join room', (data) => joinRoom(socket, data, io));
     socket.on('leave room', (data) => leaveRoom(socket, data, io));
     socket.on('send message', (data) => sendMessage(socket, data, io));
+    socket.on('member disconnect', (data) =>
+        disconnectFromRoom(socket, data, io)
+    );
     socket.on('disconnect client', (data) => {
         console.log("Quelqu'un s'est déconnecté", data);
         socket.disconnect();
