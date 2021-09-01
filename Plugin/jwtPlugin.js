@@ -10,20 +10,18 @@ function jwtPlugin(fastify, opts, next) {
         const { _id } = request.body;
         const token = request.headers?.authorization?.split(' ')[1];
         if (!token || !_id) {
-            reply.code(403).send({ error: 'Accès interdit.' });
+            return reply.code(403).send({ error: 'Accès interdit.' });
         }
         try {
             const decoded = await fastify.jwt.verify(token);
             if (decoded._id !== _id) {
-                reply.code(403).send('Accès interdit.');
+                return reply.code(403).send('Accès interdit.');
             }
         } catch (err) {
-            reply
-                .code(403)
-                .send({
-                    err,
-                    error: "Vous n'avez pas accès à cette fonctionnalité : reconnectez vous.",
-                });
+            return reply.code(403).send({
+                err,
+                error: "Vous n'avez pas accès à cette fonctionnalité : reconnectez vous.",
+            });
         }
     });
     next();
